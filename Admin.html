@@ -172,7 +172,7 @@ const submitForm = async () => {
     }else{
       alert(`Report saved successfully! start`);
       const data = await response.json();
-      window.location.replace( `http://127.0.0.1:5500/CustomerReport.html?customerId=${data.customerId}`);
+      window.location.href = `http://127.0.0.1:5500/CustomerReport.html?customerId=${data.customerId}`;
     console.log("data from admin :",data)
     console.log('Report ID:', data.customerId); 
     alert(`Report saved successfully!ID: ${data.customerId}`);

@@ -52,10 +52,10 @@ app.post(
   async (req, res) => {
     const { address, cashOffer, offerAmountEPP } = req.body;
     const files = req.files;
-    console.log(req.body.address);
-    console.log(req.body.cashOffer);
-    console.log(req.body.offerAmountEPP);
-    console.log(res.files);
+    console.log("Address:", address);
+    console.log("Cash Offer:", cashOffer);
+    console.log("Offer Amount EPP:", offerAmountEPP);
+    console.log("Files:", files);
     try {
       const newReport = new Report({
         address: address || "",
