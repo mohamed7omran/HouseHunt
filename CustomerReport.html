@@ -1,0 +1,108 @@
+<html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+      .property-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+      .property-image { width: 300px; height: 200px; object-fit: cover; }
+      .comparable-properties { display: flex; justify-content: space-between; margin-bottom: 20px; }
+      .comparable-property { width: 32%; }
+      .offer-section { margin-bottom: 20px; }
+      .offer-details { display: flex; justify-content: space-between; }
+      .offer-box, .info-box { width: 48%; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
+      .info-box ul { padding-left: 20px; }
+      h2 { color: #333; }
+      .emphasized { font-weight: bold; color: #007bff; }
+    </style>
+  </head>
+  <body>
+
+    <div class="property-header">
+      <div id="report">
+        <h1 id="propertyAddress">Property Address: hi</h1>
+      </div>
+      <img id="propertyImage" class="property-image" src="" alt="Property Image" width="300" height="200">
+    </div>
+
+    <h2>Comparable Properties</h2>
+    <div class="comparable-properties">
+      <img id="compImage1" class="comparable-property" src="" alt="Comparable Image 1" width="320" height="213">
+      <img id="compImage2" class="comparable-property" src="" alt="Comparable Image 2" width="320" height="213">
+      <img id="compImage3" class="comparable-property" src="" alt="Comparable Image 3" width="320" height="213">
+    </div>
+
+    <div class="offer-section">
+      <h2>Cash Offer</h2>
+      <div class="offer-details">
+        <div class="offer-box">
+          <h3 class="emphasized">Offer Amount</h3>
+          <p id="cashOffer">$275,000</p>
+        </div>
+        <div class="info-box">
+          <h3>Cash Offer Benefits:</h3>
+          <ul>
+            <li>You don't pay realtor commissions (normally 5-6%)</li>
+            <li>You don't pay for title insurance, escrow fees or other closing costs (normally 3-4%)</li>
+            <li>Get money in hand in as little as 2 weeks</li>
+            <li>No showings</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="offer-section">
+      <h2>Equity Protection Program (EPP)</h2>
+      <div class="offer-details">
+        <div class="offer-box">
+          <h3 class="emphasized">Offer Amount</h3>
+          <p id="offerAmountEPP">$290,000</p>
+        </div>
+        <div class="info-box">
+          <h3>Equity Protection Plan Benefits:</h3>
+          <ul>
+            <li>You don't pay realtor commissions (normally 5-6%)</li>
+            <li>You don't pay for title insurance, escrow fees or other closing costs (normally 3-4%)</li>
+            <li>30-60 days to close</li>
+            <li>Reasonable access (show property to 1-3 buyers)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <script>
+      const getReportIdFromQuery = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('customerId');
+      };
+
+      const submitForm = async () => {
+       try {
+          const customerId =getReportIdFromQuery();
+          if (!customerId) {
+            alert(`Report ID not provided ID: ${customerId}`)
+            throw new Error('Report ID not provided');
+          }
+          const response = await fetch(`http://localhost:5500/reports?customerId=${customerId}`, {
+          method: "GET",
+        });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("from customer ",data)
+    // const latestReport = data[data.length - 1]; // Assuming the latest report is the last one
+    document.getElementById('propertyAddress').textContent = `Property Address: ${data.address}`;
+    document.getElementById('propertyImage').src = data.imageUpload;
+    document.getElementById('compImage1').src = data.compImageUpload1;
+    document.getElementById('compImage2').src = data.compImageUpload2;
+    document.getElementById('compImage3').src = data.compImageUpload3;
+    document.getElementById('cashOffer').textContent = data.cashOffer;
+    document.getElementById('offerAmountEPP').textContent = data.offerAmountEPP;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+    document.addEventListener('DOMContentLoaded', submitForm);
+    </script>
+  </body>
+</html>

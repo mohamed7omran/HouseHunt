@@ -1,0 +1,291 @@
+
+<html>
+  <head>
+    <!-- <base href="https://propertyprofile.io/"> -->
+    <title>PropertyProfile.io - Your Real Estate Analysis Tool</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 20px;
+          background-color: #f0f8ff;
+        }
+        h1, h2 {
+          color: #2c3e50;
+        }
+        .property-image {
+          width: 100%;
+          height: 300px;
+          background-color: #ddd;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+        .image-upload {
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          margin-bottom: 20px;
+        }
+        .image-box {
+          width: 32%;
+          height: 200px;
+          background-color: #ddd;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+        }
+        th, td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: left;
+        }
+        th {
+          background-color: #f2f2f2;
+        }
+        input[type="text"], input[type="number"] {
+          width: 100%;
+          padding: 5px;
+          box-sizing: border-box;
+        }
+        .customer-view-btn {
+          font-size: 1rem;
+          display: block;
+          width: 200px;
+          margin: 20px auto;
+          padding: 15px;
+          background-color: #3498db;
+          color: white;
+          text-align: center;
+          text-decoration: none;
+          border-radius: 5px;
+          border: none;
+          cursor: pointer;
+        }
+        .customer-view-btn:hover {
+          background-color: #2980b9;
+        }
+    </style>
+  </head>
+  <body>
+    <h1>PropertyProfile.io - Admin View</h1>
+    <p>Welcome to the admin view of PropertyProfile.io. Enter a property address to begin your evaluation.</p>
+
+    <!-- <form method="GET" action="https://propertyprofile.io/analyze">
+      <label for="address">Property Address:</label>
+      <input type="text" id="address" name="address" required>
+      <input type="submit" value="Analyze Property">
+    </form> -->
+  <form  id="uploadForm" enctype="multipart/form-data" onsubmit="handleFormSubmit(event)">
+      <label for="address">Property Address:</label>
+      <input type="text" id="address" name="address" required>
+
+    <h2>Property Image</h2>
+    <div class="property-image">
+      <img src="" alt="Placeholder house image, modern style" width="400" height="300" id="propertyImage">
+    </div>
+    <input type="file" id="imageUpload" name="imageUpload" accept="image/*"  onchange="updateImage()">
+
+    <h2>Comparable Images</h2>
+    <div class="image-upload">
+      <div class="image-box">
+        <img src="" alt="Placeholder comparison image 1" width="200" height="150" id="compImage1">
+      </div>
+      <div class="image-box">
+        <img src="" alt="Placeholder comparison image 2" width="200" height="150" id="compImage2">
+      </div>
+      <div class="image-box">
+        <img src="" alt="Placeholder comparison image 3" width="200" height="150" id="compImage3">
+      </div>
+    </div>
+    <input type="file" id="compImageUpload1" name="compImageUpload1" accept="image/*" onchange="updateCompImage(1)">
+    <input type="file" id="compImageUpload2" name="compImageUpload2" accept="image/*" onchange="updateCompImage(2)">
+    <input type="file" id="compImageUpload3" name="compImageUpload3" accept="image/*" onchange="updateCompImage(3)">
+
+    
+    <h2>Cash Offer Analysis</h2>
+    <table id="cashOfferTable">
+      <tr>
+        <th>Cash Offer</th>
+        <th>ARV</th>
+        <th>Percentage</th>
+        <th>Rehab Cost</th>
+        <th>Wholesaling Fee</th>
+        <th>Cash Offer</th>
+      </tr>
+      <tr>
+        <td>Cash Offer</td>
+        <td><input type="text" id="arv" oninput="calculateCashOffer()"></td>
+        <td><input type="text" id="percentage" oninput="calculateCashOffer()"></td>
+        <td><input type="text" id="rehabCost" oninput="calculateCashOffer()"></td>
+        <td><input type="text" id="wholesalingFee" oninput="calculateCashOffer()"></td>
+        <td id="cashOffer" name="cashOffer"></td>
+      </tr>
+    </table>
+
+    <h2>Equity Protection Program</h2>
+    <table id="equityProtectionTable">
+      <tr>
+        <th>Equity Protection</th>
+        <th>ARV</th>
+        <th>Percentage</th>
+        <th>Rehab Cost</th>
+        <th>Wholesaling Fee</th>
+        <th>Offer Amount - EPP</th>
+      </tr>
+      <tr>
+        <td>Equity Protection</td>
+        <td><input type="text" id="arvEPP" oninput="calculateEquityProtection()"></td>
+        <td><input type="text" id="percentageEPP" oninput="calculateEquityProtection()"></td>
+        <td><input type="text" id="rehabCostEPP" oninput="calculateEquityProtection()"></td>
+        <td><input type="text" id="wholesalingFeeEPP" oninput="calculateEquityProtection()"></td>
+        <td id="offerAmountEPP" name="offerAmountEPP"></td>
+      </tr>
+    </table>
+    <button  type="submit" class="customer-view-btn" >View Customer Report</button>
+  </form>
+  
+  <!-- <a href="#" class="customer-view-btn" ">View Customer Report</button> -->
+<script>
+
+const submitForm = async () => {
+  const form = document.getElementById('uploadForm')
+  const formData = new FormData(form);
+  
+  try {
+    
+    const response = await fetch("http://localhost:5500/submit", {
+      method: "POST",
+      body:formData,
+
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }else{
+      alert(`Report saved successfully! start`);
+      const data = await response.json();
+      window.location.replace( `http://127.0.0.1:5500/CustomerReport.html?customerId=${data.customerId}`);
+    console.log("data from admin :",data)
+    console.log('Report ID:', data.customerId); 
+    alert(`Report saved successfully!ID: ${data.customerId}`);
+    }
+  }catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+
+function handleFormSubmit(event) {
+      event.preventDefault(); 
+      calculateCashOffer()
+      calculateEquityProtection()
+      submitForm();
+  }
+
+function updateImage() {
+  const fileInput = document.getElementById('imageUpload');
+  const file = fileInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('propertyImage').src = e.target.result;
+    }
+    reader.readAsDataURL(file);
+  } else {
+    console.log('No file selected for property image');
+  }
+}
+
+function updateCompImage(num) {
+  const fileInput = document.getElementById(`compImageUpload${num}`);
+  const file = fileInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById(`compImage${num}`).src = e.target.result;
+    }
+    reader.readAsDataURL(file);
+  } else {
+    console.log(`No file selected for comparable image ${num}`);
+  }
+}
+
+function parseInputValue(value) {
+  return parseFloat(value.replace(/,/g, '')) || 0;
+}
+
+function formatCurrency(value) {
+  return '$' + value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+}
+
+function calculateCashOffer() {
+  const arv = parseInputValue(document.getElementById('arv').value);
+  const percentage = parseInputValue(document.getElementById('percentage').value) / 100;
+  const rehabCost = parseInputValue(document.getElementById('rehabCost').value);
+  const wholesalingFee = parseInputValue(document.getElementById('wholesalingFee').value);
+  const cashOffer = (arv * percentage) - rehabCost - wholesalingFee;
+  document.getElementById('cashOffer').textContent = formatCurrency(cashOffer);
+}
+
+function calculateEquityProtection() {
+  const arv = parseInputValue(document.getElementById('arvEPP').value);
+  const percentage = parseInputValue(document.getElementById('percentageEPP').value) / 100;
+  const rehabCost = parseInputValue(document.getElementById('rehabCostEPP').value);
+  const wholesalingFee = parseInputValue(document.getElementById('wholesalingFeeEPP').value);
+  const offerAmountEPP = arv - (arv * percentage) - rehabCost - wholesalingFee;
+  document.getElementById('offerAmountEPP').textContent = formatCurrency(offerAmountEPP);
+}
+
+function generateUniqueID() {
+  return 'ABC' + Math.random().toString(36).substr(2, 6);
+}
+
+// function openCustomerReport() {
+//   const uniqueID = generateUniqueID();
+//   const address = document.getElementById('address').value;
+//   const propertyImageSrc = document.getElementById('propertyImage').src;
+//   const compImage1Src = document.getElementById('compImage1').src;
+//   const compImage2Src = document.getElementById('compImage2').src;
+//   const compImage3Src = document.getElementById('compImage3').src;
+//   const arv = document.getElementById('arv').value;
+//   const percentage = document.getElementById('percentage').value;
+//   const rehabCost = document.getElementById('rehabCost').value;
+//   const wholesalingFee = document.getElementById('wholesalingFee').value;
+//   const cashOffer = document.getElementById('cashOffer').textContent;
+//   const arvEPP = document.getElementById('arvEPP').value;
+//   const percentageEPP = document.getElementById('percentageEPP').value;
+//   const rehabCostEPP = document.getElementById('rehabCostEPP').value;
+//   const wholesalingFeeEPP = document.getElementById('wholesalingFeeEPP').value;
+//   const offerAmountEPP = document.getElementById('offerAmountEPP').textContent;
+
+//   const reportUrl = `https://websim.ai/c/${uniqueID}?` +
+//     `address=${encodeURIComponent(address)}` +
+//     `&propertyImage=${encodeURIComponent(propertyImageSrc)}` +
+//     `&compImage1=${encodeURIComponent(compImage1Src)}` +
+//     `&compImage2=${encodeURIComponent(compImage2Src)}` +
+//     `&compImage3=${encodeURIComponent(compImage3Src)}` +
+//     `&arv=${encodeURIComponent(arv)}` +
+//     `&percentage=${encodeURIComponent(percentage)}` +
+//     `&rehabCost=${encodeURIComponent(rehabCost)}` +
+//     `&wholesalingFee=${encodeURIComponent(wholesalingFee)}` +
+//     `&cashOffer=${encodeURIComponent(cashOffer)}` +
+//     `&arvEPP=${encodeURIComponent(arvEPP)}` +
+//     `&percentageEPP=${encodeURIComponent(percentageEPP)}` +
+//     `&rehabCostEPP=${encodeURIComponent(rehabCostEPP)}` +
+//     `&wholesalingFeeEPP=${encodeURIComponent(wholesalingFeeEPP)}` +
+//     `&offerAmountEPP=${encodeURIComponent(offerAmountEPP)}` +
+//     `&adminUrl=${encodeURIComponent(window.location.href)}`;
+
+//   window.open(reportUrl, '_blank');
+// }
+  </script>
+  </body>
+</html>
